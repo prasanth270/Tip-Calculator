@@ -24,34 +24,36 @@ class TipViewController: UIViewController {
     
     var userDefaults: UserDefaults = UserDefaults.standard
     
+    var colorArray: [UIColor] = [UIColor(red: 216/255, green: 247/255, blue: 255/255, alpha: 1),
+                                 UIColor(red: 216/255, green: 247/255, blue: 0/255, alpha: 1)]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    
         //Set Input to First Responder
         inputMoney.becomeFirstResponder()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+        let color: Int = userDefaults.integer(forKey: "changeTheme")
+    
+        self.view.backgroundColor = colorArray[color]
+        
+        if color == 1 {
+            self.calculatedValuesView.backgroundColor = UIColor(red: 200/255, green: 247/255, blue: 100/255, alpha: 1)
+        } else {
+            self.calculatedValuesView.backgroundColor = UIColor(red: 200/255, green: 247/255, blue: 255/255, alpha: 1)
+        }
+        
         tipSegmentControll.selectedSegmentIndex = userDefaults.integer(forKey: "defaultTip")
         updateValues()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        
-    }
-    
-    
-    override func applicationFinishedRestoringState() {
-        print(userDefaults.integer(forKey: "defaultTip"))
-    }
-    
     
     @IBAction func tipSegmentContollChanged(_ sender: UISegmentedControl) {
         
         // Hide the View before Calculations
-        calculatedValuesView.isHidden = true
+        calculatedValuesView.alpha = 0
         
         userDefaults.set(tipSegmentControll.selectedSegmentIndex, forKey: "defaultTip")
         
@@ -71,13 +73,16 @@ class TipViewController: UIViewController {
     */
     func updateValues() {
         
-        if(calculatedValuesView.isHidden) {
-            calculatedValuesView.isHidden = false
+        if calculatedValuesView.alpha == 0  {
+            //calculatedValuesView.alpha = 1
+            
+            UIView.animate(withDuration: 0.4, animations: { 
+                self.calculatedValuesView.alpha = 1
+            })
         }
         
-        
-        
         if let text = inputMoney.text, !text.isEmpty {
+            
             let billAmount: Float = Float(inputMoney.text!)!
             let tipPercentage:Float = Float(tipPercentageArray[tipSegmentControll.selectedSegmentIndex])
             
@@ -86,18 +91,12 @@ class TipViewController: UIViewController {
             
             self.tipAmount.text = String(calculatedTip)
             self.totalAmount.text = String(calculatedTotal)
+            
         } else {
-            calculatedValuesView.isHidden = true
+            
+            self.calculatedValuesView.alpha = 0
         }
         
-//        guard let text = inputMoney.text, !text.isEmpty else {
-//            billAmount = 0.0
-//            return
-//        }
-        
-        
     }
-
-
 }
 
